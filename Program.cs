@@ -1,28 +1,32 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using System.IO;
 
 var app = WebApplication.Create(args);
 
-// Stores the most recent received message
-string lastMessage = "";
+// File used to store the last message
+string filePath = "message.txt";
 
-// Laptop or device sends a message
-// Example: POST /send?msg=HelloWorld
-app.MapPost("/send", (string msg) =>
+// POST /send?msg=Hello
+app.MapPost("/send", async (string msg) =>
 {
-    lastMessage = msg;
+    await File.WriteAllTextAsync(filePath, msg);
     return Results.Ok("Message saved.");
 });
 
-// Laptop or device reads the most recent message
-// Example: GET /read
-app.MapGet("/read", () =>
+// GET /read
+app.MapGet("/read", async () =>
 {
-    if (string.IsNullOrWhiteSpace(lastMessage))
+    if (!File.Exists(filePath))
         return Results.Ok("NO_MESSAGE");
 
-    return Results.Ok(lastMessage);
+    string msg = await File.ReadAllTextAsync(filePath);
+
+    if (string.IsNullOrWhiteSpace(msg))
+        return Results.Ok("NO_MESSAGE");
+
+    return Results.Ok(msg);
 });
 
 app.Run();
