@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 
-var app = WebApplication.Create(args);
+var builder = WebApplication.CreateBuilder(args);
 
-// File used to store the last message
+// REQUIRED FOR RENDER
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
+
+var app = builder.Build();
+
 string filePath = "message.txt";
 
 // POST /send?msg=Hello
